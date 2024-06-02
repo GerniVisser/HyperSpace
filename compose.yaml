@@ -30,16 +30,16 @@ services:
       - postgres
     restart: unless-stopped
 
-  python:
-    build: Python
-    ports:
-      - "8000:8000"
-    depends_on:
-      - postgres
-    environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:changeme@postgres:5432/postgres
-    networks:
-      - postgres
+  # python:
+  #   build: Python
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     DATABASE_URL: postgresql+psycopg2://postgres:changeme@postgres:5432/postgres
+  #   networks:
+  #     - postgres
 
 networks:
   postgres:
