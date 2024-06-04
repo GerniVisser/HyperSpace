@@ -7,7 +7,8 @@ from sqlalchemy.orm import sessionmaker
 import requests
 import logging
 
-DATABASE_URL = os.environ.get('DATABASE_URL') or "postgresql+psycopg2://postgres:changeme@localhost:5432/postgres"
+DATABASE_URL = os.environ.get('DATABASE_URL')
+NODE_URL = os.environ.get('NODE_URL')
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -29,7 +30,7 @@ class ItemCreate(BaseModel):
 
 @app.get("/")
 def read_root():
-    webhook_url = "http://localhost:4000/webhook"
+    webhook_url = "http://node:4000/webhook"
     try:
         requests.post(webhook_url, json={"name": "Jo"})
         logger.debug('Notified Node.js server')
@@ -52,7 +53,7 @@ def create_item(item: ItemCreate):
     session.commit()
     session.close()
 
-    webhook_url = "http://localhost:4000/webhook"
+    webhook_url = "http://node:4000/webhook"
     requests.post(webhook_url, json={"name": item.name})
     
     return db_item

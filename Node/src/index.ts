@@ -16,8 +16,6 @@ const io = new Server(server, {
   }
 });
 
-const PORT = process.env.PORT;
-
 app.use(cors({
   origin: 'http://localhost:8000',
   methods: ['GET', 'POST'],
@@ -33,6 +31,11 @@ app.get("/", (request: Request, response: Response) => {
   response.status(200).send("Hello World");
 }); 
 
+app.get("/things", async (req: Request, res: Response) => {
+  const items = await axios.get(`http://python:8000/items`);
+  res.status(200).send(items.data);
+});
+
 io.on('connection', (socket) => {
   console.log('a user connected');
   socket.on('disconnect', () => {
@@ -43,9 +46,9 @@ io.on('connection', (socket) => {
 app.post("/webhook", async (req: Request, res: Response) => {
   try {
     console.log('Received notification', req.body);
-    const updatedItems = await axios.get('http://localhost:8000/items');
-    io.emit('updateItems', updatedItems.data);
-    res.status(200).send('Notification received');
+    const items = await axios.get(`http://python:8000/items`);
+    io.emit('updateItems', items.data);
+    res.status(200).send(items.data);
   } catch (error) {
     res.status(500).json({ error: error });
   }
