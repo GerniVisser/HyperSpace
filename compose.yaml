@@ -42,8 +42,8 @@ services:
     depends_on:
       - python
     environment:
-      PYTHON_URL: http//python:8000
-      REACT_URL: http://react:3000
+      PYTHON_URL: http://python:8000
+      PORT: 4000
   
   react:
     build: React/hyper-space

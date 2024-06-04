@@ -1,12 +1,14 @@
-import React, { Component, useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import Modal from '../modal/Modal';
+import './Home.css';
 
 
 export default function Home() {
     
     const socket = io('http://localhost:4000'); 
     const [items, setItems] = useState([]);
+    const [isModalOpen, setModalOpen] = useState(false);
     
     useEffect(() => {
         console.log('Connecting to serr');
@@ -26,13 +28,27 @@ export default function Home() {
     }, []);
 
     return (
-        <div>
-        <h2>Home</h2>
-        <ul>
-            {items.map((item: any, index) => (
-                <li key={index}>{item.name}</li>
-            ))}
-        </ul>
-        </div>
+        <React.Fragment>
+            <div className='home-container'>
+                <button
+                    onClick={() => setModalOpen(true)}
+                >
+                    Click Here
+                </button>
+            </div>
+
+            <Modal
+                isOpen={isModalOpen}
+                hasCloseBtn={true}
+                onClose={() => setModalOpen(false)}
+            >
+                <ul>
+                    {items.map((item: any, index) => (
+                        <li key={index}>{item.name}</li>
+                    ))}
+                </ul>
+            </Modal>
+        </React.Fragment>
+        
     );
   }

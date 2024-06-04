@@ -1,27 +1,22 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import { createServer } from 'node:http';
+import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import axios from "axios";
 
 
 dotenv.config();
+const PYTHON_API_URL = process.env.PYTHON_URL
+
 const app = express();
 
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000"
+    origin: "*"
   }
-});
-
-app.use(cors({
-  origin: 'http://localhost:8000',
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
-}));
-
+});;
 app.use(express.json());
 
 app.get("/", (request: Request, response: Response) => { 
@@ -32,7 +27,7 @@ app.get("/", (request: Request, response: Response) => {
 }); 
 
 app.get("/things", async (req: Request, res: Response) => {
-  const items = await axios.get(`http://python:8000/items`);
+  const items = await axios.get(`${PYTHON_API_URL}/items`);
   res.status(200).send(items.data);
 });
 
@@ -46,7 +41,7 @@ io.on('connection', (socket) => {
 app.post("/webhook", async (req: Request, res: Response) => {
   try {
     console.log('Received notification', req.body);
-    const items = await axios.get(`http://python:8000/items`);
+    const items = await axios.get(`${PYTHON_API_URL}/items`);
     io.emit('updateItems', items.data);
     res.status(200).send(items.data);
   } catch (error) {
