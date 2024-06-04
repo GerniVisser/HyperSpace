@@ -10,35 +10,38 @@ dotenv.config();
 const PYTHON_API_URL = process.env.PYTHON_URL
 
 const app = express();
+app.use(express.json());
 
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*"
   }
-});;
-app.use(express.json());
-
-app.get("/", (request: Request, response: Response) => { 
-  io.emit('updateItems', { 
-    items: ['item1', 'item2', 'item3']
-   });
-  response.status(200).send("Hello World");
-}); 
-
-app.get("/things", async (req: Request, res: Response) => {
-  const items = await axios.get(`${PYTHON_API_URL}/items`);
-  res.status(200).send(items.data);
 });
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
+io.on('connection', async (socket) => {
+  try {
+    const response = await axios.get(`${PYTHON_API_URL}/items`);
+    socket.emit('updateItems', response.data);
+  } catch (error) {
+    console.error('Error fetching items on new connection:', error);
+  }
+
+  socket.on('newItem', async (data) => {
+    await axios.post(`${PYTHON_API_URL}/items`, data);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
 });
 
-app.post("/webhook", async (req: Request, res: Response) => {
+app.get("/items", async (req: Request, res: Response) => {
+  const items = await axios.get(`${PYTHON_API_URL}/items`);
+  res.status(200).send(items.data);
+});
+
+app.post("/notify", async (req: Request, res: Response) => {
   try {
     console.log('Received notification', req.body);
     const items = await axios.get(`${PYTHON_API_URL}/items`);

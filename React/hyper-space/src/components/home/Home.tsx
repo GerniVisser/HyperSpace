@@ -9,6 +9,7 @@ export default function Home() {
     const socket = io('http://localhost:4000'); 
     const [items, setItems] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
+    const [newItem, setNewItem] = useState('');
     
     useEffect(() => {
         console.log('Connecting to serr');
@@ -26,6 +27,16 @@ export default function Home() {
             socket.disconnect();
         };
     }, []);
+
+    const handleSubmit = (event: any) => {
+        event.preventDefault();
+        try {
+            socket.emit('newItem', { name: newItem });
+            setNewItem('');
+        } catch (error) {
+            console.error('Error submitting new item:', error);
+        }
+    };
 
     return (
         <React.Fragment>
@@ -47,8 +58,16 @@ export default function Home() {
                         <li key={index}>{item.name}</li>
                     ))}
                 </ul>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="text"
+                        value={newItem}
+                        onChange={(event) => setNewItem(event.target.value)}
+                        placeholder="Enter new item"
+                    />
+                    <button type="submit">Submit</button>
+                </form>
             </Modal>
         </React.Fragment>
-        
     );
   }

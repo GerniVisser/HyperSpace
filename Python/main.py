@@ -28,16 +28,6 @@ app = FastAPI()
 class ItemCreate(BaseModel):
     name: str
 
-@app.get("/")
-def read_root():
-    webhook_url = "http://node:4000/webhook"
-    try:
-        requests.post(webhook_url, json={"name": "Jo"})
-        logger.debug('Notified Node.js server')
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to notify Node.js server: {e}")
-    return {"Hello": "Joe"}
-
 @app.get("/items")
 def read_items():
     session = SessionLocal()
@@ -53,7 +43,7 @@ def create_item(item: ItemCreate):
     session.commit()
     session.close()
 
-    webhook_url = "http://node:4000/webhook"
+    webhook_url = f"{NODE_URL}/notify"
     requests.post(webhook_url, json={"name": item.name})
     
     return db_item
